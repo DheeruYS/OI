@@ -19,29 +19,27 @@ void solve(){
 		bool possible = true;
 
 		ll ind = i-1;
-		multiset<ll> s;
+		queue<ll> q;
 
 		for(ll j = 1; j <= n; j++){
 			ind++;
 			if(ind > n) ind = 1;
 
 			if(a[ind] == 0){
-				if(s.size() == 0){
+				if(q.size() == 0){
 					possible = false;
 					break;
 				}
-				auto it = s.begin();
-				ll x = j-(*(it));
+				ll x = j-q.front();
 				cost += (x*x);
-				s.erase(s.begin());
+				q.pop();
 				continue;
 			}
 
-			for(ll k = 1; k <= a[ind]; k++) s.insert(j);
-			auto it = s.begin();
-			ll x = j-(*(it));
+			for(ll k = 1; k <= a[ind]; k++) q.push(j);
+			ll x = j-q.front();
 			cost += (x*x);
-			s.erase(s.begin());
+			q.pop();
 		}
 
 		if(!possible) continue;
