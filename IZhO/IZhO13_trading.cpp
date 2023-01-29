@@ -30,20 +30,26 @@ bool shouldIUpdate(ll beforeval , ll beforepos , ll newval , ll newpos , ll pos)
 	return false;
 }
 
-void update(ll node , ll left , ll right , ll ql , ll qr , ll val){
+void propogate(ll node , ll left , ll right){
 
 	ll mid = (left+right)/2;
 
-	if(lazy[node].first){
+	seg[node] = max(seg[node],right-lazy[node].second+lazy[node].first);
 
-		seg[node] = max(seg[node],right-lazy[node].second+lazy[node].first);
-		if(left != right){
-			if(shouldIUpdate(lazy[2*node].first,lazy[2*node].second,lazy[node].first,lazy[node].second,mid)) lazy[2*node] = lazy[node];
-			if(shouldIUpdate(lazy[2*node+1].first,lazy[2*node+1].second,lazy[node].first,lazy[node].second,right)) lazy[2*node+1] = lazy[node];
-		}
-		lazy[node].first = 0;
-		lazy[node].second = 0;
+	if(left != right){
+		if(shouldIUpdate(lazy[2*node].first,lazy[2*node].second,lazy[node].first,lazy[node].second,mid)) lazy[2*node] = lazy[node];
+		if(shouldIUpdate(lazy[2*node+1].first,lazy[2*node+1].second,lazy[node].first,lazy[node].second,right)) lazy[2*node+1] = lazy[node];
 	}
+
+	lazy[node].first = 0;
+	lazy[node].second = 0;
+}
+
+void update(ll node , ll left , ll right , ll ql , ll qr , ll val){
+
+	if(lazy[node].first) propogate(node,left,right);
+
+	ll mid = (left+right)/2;
 
 	if(left >= ql && right <= qr){
 
@@ -65,21 +71,12 @@ void update(ll node , ll left , ll right , ll ql , ll qr , ll val){
 
 ll query(ll node , ll left , ll right , ll ql , ll qr){
 
-	ll mid = (left+right)/2;
-
-	if(lazy[node].first){
-
-		seg[node] = max(seg[node],right-lazy[node].second+lazy[node].first);
-		if(left != right){
-			if(shouldIUpdate(lazy[2*node].first,lazy[2*node].second,lazy[node].first,lazy[node].second,mid)) lazy[2*node] = lazy[node];
-			if(shouldIUpdate(lazy[2*node+1].first,lazy[2*node+1].second,lazy[node].first,lazy[node].second,right)) lazy[2*node+1] = lazy[node];
-		}
-		lazy[node].first = 0;
-		lazy[node].second = 0;
-	}
+	if(lazy[node].first) propogate(node,left,right);
 
 	if(left >= ql && right <= qr) return seg[node];
 	if(left > qr || right < ql) return 0;
+
+	ll mid = (left+right)/2;
 
 	ll l = query(2*node,left,mid,ql,qr);
 	ll r = query(2*node+1,mid+1,right,ql,qr);
