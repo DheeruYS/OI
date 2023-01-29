@@ -2,41 +2,36 @@
 using namespace std;
 #define fast ios_base::sync_with_stdio(false); cin.tie(NULL); cout.tie(NULL);
 #define ll long long int
-const ll N = 1e6+5 , INF = 1e18 , MOD = 1e9+7;
+const ll N = 1e5+5 , INF = 1e18 , MOD = 1e9+7;
 
-vector<ll> par(N) , ssize(N);
+vector<ll> par(N),len(N);
 
 void make_set(ll n){
 	for(ll i = 1; i <= n; i++){
 		par[i] = i;
-		ssize[i] = 1;
+		len[i] = 0;
 	}
 }
 
-ll find(ll x){
-	if(x == par[x]) return x;
-	return par[x] = find(par[x]);
+pair<ll,ll> get(ll x){
+	if(x == par[x]) return make_pair(x,0);
+
+	pair<ll,ll> u = get(par[x]);
+	par[x] = u.first;
+	len[x] = (len[x]+u.second)%2;
+
+	return make_pair(par[x],len[x]);
 }
 
-ll cnt = 0;
+void add_edge(ll a , ll b , ll c){
 
-ll cost(ll z){
-	return ((z*(z+1))/2);
-}
+	pair<ll,ll> x = get(a);
+	pair<ll,ll> y = get(b);
 
-void add_edge(ll a, ll b){
+	if(x.first == y.first) return;
 
-	a = find(a);
-	b = find(b);
-
-	if(a == b) return;
-
-	cnt -= cost(ssize[a]);
-	cnt -= cost(ssize[b]);
-	cnt += cost(ssize[a]+ssize[b]);
-
-	par[a] = b;
-	ssize[b] += ssize[a];
+	par[x.first] = y.first;
+	len[x.first] = (x.second+c+y.second)%2;
 }
 
 void solve(){
@@ -44,37 +39,31 @@ void solve(){
 	ll n,q;
 	cin >> n >> q;
 
-	vector<ll> a(n+5);
-	vector<pair<ll,ll>> v;
-	for(ll i = 1; i <= n; i++){
-		cin >> a[i];
-		v.push_back(make_pair(a[i],i));
-	}
-
-	a[0] = INF;
-	a[n+1] = INF;
-
-	sort(v.begin(),v.end());
 	make_set(n);
 
-	vector<ll> ans(N);
-
-	for(auto u : v){	
-		cnt++;
-		if(a[u.second-1] <= u.first) add_edge(u.second-1,u.second);
-		if(a[u.second+1] <= u.first) add_edge(u.second,u.second+1);
-
-		ans[u.first] = cnt;
-	}
-
-	for(ll i = 1; i <= N; i++) if(!ans[i]) ans[i] = ans[i-1];
-
 	while(q--){
-		ll x;
-		cin >> x;
+		char x;
+		ll a,b;
+		cin >> x >> a >> b;
 
-		cout << ans[x] << "\n";
+		if(x == 'R'){
+			add_edge(a,b,0);
+		}
+		else if(x == 'A'){
+			add_edge(a,b,1);
+		}
+		else{
+			pair<ll,ll> x = get(a);
+			pair<ll,ll> y = get(b);
+
+			if(x.first != y.first) cout << "?\n";
+			else{
+				if((x.second+y.second)%2 == 0) cout << "R\n";
+				else cout << "A\n";
+			}
+		}
 	}
+
 }
 
 int main(){
