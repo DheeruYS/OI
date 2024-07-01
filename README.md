@@ -1,2 +1,2 @@
-# IOITC-Training
-My Training for IOITC
+# INOI-Training
+My Training for INOI
